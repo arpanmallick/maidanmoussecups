@@ -18,8 +18,53 @@ const OWNER_HASH = sha(OWNER_PIN);
 fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
 
 let db = { cfg: null, orders: [], alerts: [], ownerHash: null };
-try { db = Object.assign(db, JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'))); } catch (e) { /* first run */ }
-function save() { const t = DATA_FILE + '.tmp'; fs.writeFileSync(t, JSON.stringify(db)); fs.renameSync(t, DATA_FILE); }
+
+/* ---- STORAGE ----
+   Free hosts (Render free plan) ERASE local files whenever the server sleeps/restarts, which wipes photos and orders.
+   So if UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN are set (free account at upstash.com), everything is kept there instead.
+   Without them it falls back to the local data file (needs a Persistent Disk to survive restarts). */
+const REDIS_URL = String(process.env.UPSTASH_REDIS_REST_URL || '').replace(/\/$/, ''), REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN || '';
+const REMOTE = !!(REDIS_URL && REDIS_TOKEN);
+async function redis(cmd) {
+  const r = await fetch(REDIS_URL, { method: 'POST', headers: { Authorization: 'Bearer ' + REDIS_TOKEN, 'Content-Type': 'application/json' }, body: JSON.stringify(cmd) });
+  const j = await r.json(); if (j.error) throw new Error(j.error); return j.result;
+}
+const written = new Map();                       // key -> last value stored (so unchanged photos are not re-sent)
+let flushing = false, again = false;
+async function flush() {
+  if (flushing) { again = true; return; }
+  flushing = true;
+  try {
+    do {
+      again = false;
+      const kv = {};
+      if (db.cfg) {
+        const c = JSON.parse(JSON.stringify(db.cfg));
+        c.items.forEach(i => { if (i.img) kv['mc:img:' + i.id] = i.img; delete i.img; });   // photos get their own keys (keeps each request small)
+        kv['mc:cfg'] = JSON.stringify(c);
+      }
+      kv['mc:orders'] = JSON.stringify(db.orders); kv['mc:alerts'] = JSON.stringify(db.alerts); kv['mc:owner'] = db.ownerHash || '';
+      for (const k of Object.keys(kv)) if (written.get(k) !== kv[k]) { await redis(['SET', k, kv[k]]); written.set(k, kv[k]); }
+      if (db.cfg) for (const i of db.cfg.items) if (!i.img && written.get('mc:img:' + i.id)) { await redis(['DEL', 'mc:img:' + i.id]); written.delete('mc:img:' + i.id); }   // photo removed
+    } while (again);
+  } catch (e) { console.error('Storage error:', e.message); setTimeout(() => save(), 5000); }
+  flushing = false;
+}
+let flushT = null;
+function save() {
+  if (REMOTE) { clearTimeout(flushT); flushT = setTimeout(flush, 300); return; }
+  const t = DATA_FILE + '.tmp'; fs.writeFileSync(t, JSON.stringify(db)); fs.renameSync(t, DATA_FILE);
+}
+async function boot() {
+  if (!REMOTE) { try { db = Object.assign(db, JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'))); } catch (e) { /* first run */ } return; }
+  const get = async k => { const v = await redis(['GET', k]); if (v != null) written.set(k, v); return v; };
+  const c = await get('mc:cfg');
+  if (c) { db.cfg = JSON.parse(c); for (const i of db.cfg.items) { const im = await get('mc:img:' + i.id); if (im) i.img = im; } }
+  const o = await get('mc:orders'), a = await get('mc:alerts'), h = await get('mc:owner');
+  if (o) db.orders = JSON.parse(o); if (a) db.alerts = JSON.parse(a); if (h) db.ownerHash = h;
+  console.log('Loaded from Upstash:', db.cfg ? db.cfg.items.length + ' items' : 'empty');
+}
+process.on('SIGTERM', async () => { if (REMOTE) { clearTimeout(flushT); await flush(); } process.exit(0); });
 
 const pub = c => { const o = JSON.parse(JSON.stringify(c)); delete o.pinHash; return o; };
 const str = (v, n) => String(v == null ? '' : v).slice(0, n);
@@ -52,12 +97,12 @@ function act(name, b, ip) {
     if (it.max && qty > it.max) return { ok: false, error: 'Maximum ' + it.max + ' per order.', cfg: pub(cfg) };
     it.stock -= qty; cfg.updatedAt = Date.now();
     db.orders.push({ t: Date.now(), code: str(o.code, 12), name: str(o.name, 80), phone: str(o.phone, 20), itemName: it.name, qty, total: qty * it.price, slot: str(o.slot, 40), note: str(o.note, 300) });
-    if (db.orders.length > 5000) db.orders.shift();
+    if (db.orders.length > 2000) db.orders.shift();
     save(); return { ok: true, cfg: pub(cfg) };
   }
   if (name === 'alert') {
     db.alerts.push({ t: Date.now(), name: str(b.name, 80), phone: str(b.phone, 20) });
-    if (db.alerts.length > 5000) db.alerts.shift();
+    if (db.alerts.length > 1000) db.alerts.shift();
     save(); return { ok: true };
   }
 
@@ -91,7 +136,7 @@ function act(name, b, ip) {
   }
   if (name === 'orders') {
     const fmt = t => new Date(t).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
-    return { ok: true, orders: db.orders.slice(-200).reverse().map(o => Object.assign({}, o, { at: fmt(o.t) })), alerts: db.alerts.slice(-200).reverse() };
+    return { ok: true, orders: db.orders.slice(-500).reverse().map(o => Object.assign({}, o, { at: fmt(o.t) })), alerts: db.alerts.slice(-200).reverse() };
   }
   return { ok: false, error: 'Unknown action' };
 }
@@ -115,7 +160,7 @@ function serveIndex(req, res) {
   }
 }
 
-http.createServer((req, res) => {
+const server = http.createServer((req, res) => {
   const u = new URL(req.url, 'http://x'), ip = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || '';
   if (req.method === 'OPTIONS') return send(res, 204, '', 'text/plain');
   if (u.pathname === '/healthz')    return send(res, 200, 'ok', 'text/plain');
@@ -142,4 +187,6 @@ http.createServer((req, res) => {
     let out; try { const b = JSON.parse(body); out = act(b.action, b, ip); } catch (e) { out = { ok: false, error: 'Server error' }; }
     if (out.slow) { delete out.slow; setTimeout(() => send(res, 200, out), 800); } else send(res, 200, out);
   });
-}).listen(PORT, () => console.log('Maidanmoussecups backend running on port ' + PORT));
+});
+boot().then(() => server.listen(PORT, () => console.log('Maidanmoussecups backend running on port ' + PORT + (REMOTE ? ' (Upstash storage)' : ' (local file storage)'))))
+  .catch(e => { console.error('Could not load saved data:', e.message); process.exit(1); });

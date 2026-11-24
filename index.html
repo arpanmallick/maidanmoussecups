@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<title>Maidanmoussecups</title>
+<style>
+/* ===== THEME: change colours here ===== */
+:root{color-scheme:dark;--bg:#06100b;--bg2:#0a1710;--card:#0f1c15;--card2:#15271c;--ink:#f3f1e8;--mute:#9aae9f;--brand:#a8e67f;--brand2:#1f6b3a;--brand-ink:#06240f;--gold:#e9c46a;--line:rgba(255,255,255,.09);--ok:#a8e67f;--low:#e9c46a;--out:#ff8a80;box-sizing:border-box;
+padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-behavior:smooth;scroll-padding-top:calc(80px + env(safe-area-inset-top,0px))}
+html,body{margin:0;color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.6;-webkit-text-size-adjust:100%}
+body{background:var(--bg) radial-gradient(900px 560px at 85% -4%,#15401f 0,transparent 62%) no-repeat;overflow-x:clip;animation:fade .7s both}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:90;background:var(--bg)}
+h1,h2,h3{font-family:Fraunces,Georgia,"Times New Roman",serif;margin:0;font-weight:600;letter-spacing:-.015em}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}.mute{color:var(--mute);font-size:.92rem}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.ic{width:1.2em;height:1.2em;flex:none}
+.progress{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;height:3px;background:linear-gradient(90deg,var(--brand),var(--gold));transform-origin:0 50%;transform:scaleX(0);z-index:100}
+.announce{background:var(--brand);color:var(--brand-ink);font-size:.82rem;text-align:center;padding:8px 14px;display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap}
+.live{position:relative;width:8px;height:8px;border-radius:50%;background:currentColor;flex:none}
+.live::after{content:"";position:absolute;inset:0;border-radius:50%;background:inherit;animation:ping 1.7s infinite}
+/* nav */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;transition:background .3s,box-shadow .3s}
+.nav.scrolled{background:rgba(6,16,11,.86);backdrop-filter:blur(14px);box-shadow:0 1px 0 var(--line)}
+.navin{display:flex;align-items:center;justify-content:space-between;gap:14px;height:68px}
+.brand{display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;font:600 1.15rem Fraunces,Georgia,serif}
+.mark{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:var(--brand);color:var(--brand-ink)}
+.links{display:none;gap:4px}.links a{color:var(--mute);text-decoration:none;font-size:.92rem;padding:8px 14px;border-radius:99px;transition:.2s}.links a:hover{color:var(--ink);background:var(--card2)}
+@media(min-width:900px){.links{display:flex}}
+/* buttons */
+button,.btn{font:inherit;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;border:0;text-decoration:none;background:var(--brand);color:var(--brand-ink);border-radius:99px;padding:12px 22px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .25s,background .2s}
+button:hover,.btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px -8px rgba(168,230,127,.55)}
+button:active,.btn:active{transform:scale(.96)}
+button.ghost,.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+button.ghost:hover,.btn.ghost:hover{box-shadow:inset 0 0 0 1px var(--brand);background:var(--card2)}
+.sm{padding:6px 14px;font-size:.9rem}button:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}.go{width:100%}
+.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.5);transform:scale(0);animation:rip .6s linear;pointer-events:none}
+/* hero */
+.hero{padding:34px 0 24px}.herogrid{display:grid;gap:38px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:10px;padding:7px 14px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--brand);font-size:.82rem;font-weight:500}
+.hero h1{font-size:clamp(2.6rem,8vw,5.2rem);line-height:1.02;margin:18px 0}
+.lead{color:var(--mute);font-size:1.1rem;max-width:48ch;margin:0 0 26px}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.trust{display:flex;gap:28px;margin-top:34px;padding-top:24px;border-top:1px solid var(--line);flex-wrap:wrap}
+.trust div{display:grid}.trust b{font:600 1.7rem Fraunces,Georgia,serif}.trust span{color:var(--mute);font-size:.82rem}
+.heroart{position:relative;order:-1}
+.frame{border-radius:32px;overflow:hidden;aspect-ratio:5/4;border:1px solid var(--line);box-shadow:0 40px 80px -40px #000;background:var(--card)}
+.frame svg,.frame img,.pimg svg,.pimg img,.dimg svg,.dimg img,.thumb svg,.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.float{position:absolute;display:flex;gap:12px;align-items:center;padding:12px 16px;border-radius:18px;background:rgba(12,24,17,.8);backdrop-filter:blur(14px);border:1px solid var(--line);box-shadow:0 20px 40px -20px #000;animation:float 6s ease-in-out infinite;max-width:80%}
+.float b{display:block;font-size:.92rem;line-height:1.25}.float small{color:var(--mute);font-size:.78rem}.float .ic{color:var(--brand);width:1.5em;height:1.5em}
+.f1{left:10px;bottom:-18px}.f2{right:10px;top:-16px;animation-delay:-3s}
+@media(min-width:900px){.herogrid{grid-template-columns:1.05fr 1fr;gap:64px}.heroart{order:0}.frame{aspect-ratio:1/1}.f1{left:-28px;bottom:44px}.f2{right:-22px;top:40px}.hero{padding:64px 0 40px}}
+/* marquee */
+.marquee{border-block:1px solid var(--line);overflow:hidden;background:var(--bg2);margin:28px 0 0}
+.track{display:flex;width:max-content;animation:mq 34s linear infinite}.marquee:hover .track{animation-play-state:paused}
+.track span{padding:15px 22px;white-space:nowrap;color:var(--mute);font-size:.8rem;letter-spacing:.14em;text-transform:uppercase}
+.track span::after{content:"✦";margin-left:44px;color:var(--brand)}
+/* sections */
+.sec{padding:84px 20px 0}
+.eyebrow{display:flex;align-items:center;gap:12px;color:var(--brand);font-size:.76rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600;margin-bottom:12px}
+.eyebrow::before{content:"";width:30px;height:1px;background:var(--brand)}
+.title{font-size:clamp(1.9rem,4.4vw,3.1rem);line-height:1.08;margin-bottom:12px}.subt{color:var(--mute);max-width:56ch;margin:0 0 30px}
+.hls{display:grid;gap:16px}@media(min-width:760px){.hls{grid-template-columns:repeat(3,1fr)}}
+.hl{padding:26px;border-radius:24px;background:var(--card);border:1px solid var(--line);transition:transform .3s,border-color .3s}
+.hl:hover{transform:translateY(-6px);border-color:rgba(168,230,127,.4)}
+.hlic{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:var(--card2);color:var(--brand);margin-bottom:16px;transition:.3s}.hl:hover .hlic{background:var(--brand);color:var(--brand-ink);transform:rotate(-8deg) scale(1.08)}
+.hl h3{font-size:1.25rem;margin-bottom:6px}.hl p{margin:0;color:var(--mute)}
+/* menu */
+.cats{display:flex;gap:10px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none;margin-bottom:10px}
+.cat{flex:none;background:var(--card);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line);padding:7px 20px 7px 7px}
+.cat.on{background:var(--card2);box-shadow:inset 0 0 0 1.5px var(--brand)}
+.thumb{width:40px;height:40px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:#0d1a12}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(262px,1fr));gap:20px}
+.pcard{background:var(--card);border:1px solid var(--line);border-radius:26px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;transition:transform .35s cubic-bezier(.2,.7,.2,1),border-color .3s,box-shadow .3s}
+.pcard:hover{transform:translateY(-8px);border-color:rgba(168,230,127,.45);box-shadow:0 30px 50px -30px rgba(0,0,0,.9)}
+.pimg{position:relative;aspect-ratio:4/3;overflow:hidden;background:#0d1a12}.pimg svg,.pimg img{transition:transform .7s cubic-bezier(.2,.7,.2,1)}.pcard:hover .pimg svg,.pcard:hover .pimg img{transform:scale(1.08)}
+.soldout .pimg{filter:grayscale(.75) brightness(.7)}
+.pbody{padding:16px 18px 18px;display:grid;gap:10px}.pbody h3{font-size:1.25rem}.pbody p{margin:0}
+.price{font:600 1.5rem Fraunces,Georgia,serif;color:var(--brand)}
+.rchip{position:absolute;right:12px;top:12px;background:rgba(8,14,10,.82);color:var(--gold);border-radius:99px;padding:3px 11px;font-size:.8rem;font-weight:600}
+.badge{font-size:.72rem;font-weight:700;letter-spacing:.04em;padding:4px 11px;border-radius:99px;border:1.5px solid currentColor}
+.pimg .badge{position:absolute;left:12px;top:12px;background:rgba(8,14,10,.85)}.dinfo .badge{background:rgba(8,14,10,.85)}
+.Available{color:var(--ok)}.Low{color:var(--low);animation:pulse 1.8s infinite}.Sold{color:var(--out)}
+.meter{height:5px;border-radius:9px;background:rgba(255,255,255,.08);overflow:hidden}
+.meter i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--brand),var(--gold));animation:grow 1.1s cubic-bezier(.2,.7,.2,1)}
+.enter{animation:rise .7s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0)*80ms)}
+.flash{animation:flash .9s}.stock{display:flex;gap:8px}
+/* steps / story / faq / band */
+.steps{display:grid;gap:16px;counter-reset:s}@media(min-width:760px){.steps{grid-template-columns:repeat(3,1fr)}}
+.step{padding:26px;border-radius:24px;border:1px solid var(--line);background:linear-gradient(180deg,var(--card),var(--bg2));counter-increment:s;transition:transform .3s}.step:hover{transform:translateY(-5px)}
+.step::before{content:"0" counter(s);font:600 2.6rem Fraunces,Georgia,serif;color:var(--brand);opacity:.9;display:block;margin-bottom:6px}
+.step h3{font-size:1.2rem;margin-bottom:6px}.step p{margin:0;color:var(--mute)}
+.story{display:grid;gap:36px;align-items:center}@media(min-width:900px){.story{grid-template-columns:1fr 1fr;gap:70px}}
+.story p{color:var(--mute);font-size:1.08rem;margin:0}
+.collage{position:relative;height:340px}.collage .frame{position:absolute;aspect-ratio:auto;transition:transform .5s}
+.c0{left:0;top:0;width:68%;height:78%}.c1{right:0;bottom:0;width:58%;height:66%}.collage:hover .c0{transform:rotate(-3deg) translateY(-6px)}.collage:hover .c1{transform:rotate(3deg) translateY(6px)}
+@media(min-width:900px){.collage{height:440px}}
+.two{display:grid;gap:20px}@media(min-width:900px){.two{grid-template-columns:1.2fr 1fr}}
+.panel,.card{background:var(--card);border:1px solid var(--line);border-radius:26px;padding:26px;margin:0 0 14px;scroll-margin-top:90px}.card{border-radius:18px;padding:16px}
+.panel h2{font-size:1.6rem;margin-bottom:6px}
+label{display:block;font-size:.82rem;font-weight:600;margin:12px 0 5px}
+input,select,textarea{width:100%;font:inherit;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#09140e;color:var(--ink);transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--brand);box-shadow:0 0 0 4px rgba(168,230,127,.14)}
+.err{border-color:var(--out)!important;box-shadow:0 0 0 4px rgba(255,138,128,.18)!important}
+.glow{animation:glow 1.7s}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.item{border-top:1px solid var(--line);padding:12px 0}.item:first-of-type{border-top:0}
+.pass{border:2px dashed var(--brand);border-radius:20px;padding:16px;margin-top:16px;animation:pop .6s cubic-bezier(.2,1.4,.4,1)}
+.pass b.code{font:600 1.7rem Fraunces,Georgia,serif;letter-spacing:3px;color:var(--brand)}
+details{border-bottom:1px solid var(--line)}summary{list-style:none;cursor:pointer;padding:20px 4px;display:flex;justify-content:space-between;gap:16px;font:600 1.1rem Fraunces,Georgia,serif}
+summary::-webkit-details-marker{display:none}.chev{width:12px;height:12px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg);transition:transform .3s;flex:none;margin-top:8px}
+details[open] .chev{transform:rotate(-135deg)}.ans{margin:0 0 20px;color:var(--mute);animation:fade .4s}
+.band{margin:84px 20px 0;max-width:1140px;margin-inline:auto;padding:56px 24px;border-radius:34px;text-align:center;background:radial-gradient(500px 260px at 50% 0,#2f7a3f,#10331c 60%,#0a1a11);border:1px solid var(--line)}
+.band h2{font-size:clamp(1.9rem,5vw,3.2rem);margin-bottom:10px}.band p{color:#cfe3d3;margin:0 0 24px}.band .cta{justify-content:center}
+.foot{margin-top:84px;border-top:1px solid var(--line);padding:30px 0 56px}.foot .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.foot a{color:var(--mute);font-size:.82rem;cursor:pointer}
+/* stars + detail */
+.stars{display:flex;align-items:center;gap:2px;flex-wrap:wrap}
+.stars button{background:none;box-shadow:none;border-radius:6px;color:#4b6352;font-size:1.9rem;padding:0 2px;line-height:1;transition:transform .15s,color .15s}.stars button:hover{transform:scale(1.25);box-shadow:none}
+.stars button.on{color:var(--gold);animation:pop .4s}.stars .mute{margin-left:8px}.stars a{color:var(--brand);font-size:.82rem;margin-left:8px}
+.detail{position:fixed;inset:0;background:rgba(0,0,0,.68);backdrop-filter:blur(5px);display:none;z-index:95;padding:16px;overflow:auto}
+.detail.open{display:grid;place-items:center;animation:fade .25s}.detail.open .dsheet{animation:sheet .45s cubic-bezier(.2,.9,.3,1.1)}
+.dsheet{position:relative;width:min(940px,100%);background:var(--card);border:1px solid var(--line);border-radius:32px;overflow:hidden;display:grid}
+.dimg{aspect-ratio:4/3}.dinfo{padding:24px;display:grid;gap:14px;align-content:start}.dinfo h2{font-size:2rem}.dinfo p{margin:0;color:var(--mute)}
+@media(min-width:760px){.dsheet{grid-template-columns:1fr 1fr}.dimg{aspect-ratio:auto;min-height:460px}}
+.qty{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.qty button{width:42px;height:42px;padding:0}.qty b{min-width:2ch;text-align:center;font-size:1.15rem}
+.dbar{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--brand2);border-radius:24px;padding:12px 14px}.dbar .price{color:#fff}.dbar .go{width:auto}
+.x{position:absolute;right:12px;top:12px;z-index:3;width:40px;height:40px;padding:0;background:rgba(8,14,10,.85);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+.drawer{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;z-index:98}.drawer.open{display:block}
+.sheet{position:absolute;right:0;top:0;bottom:0;width:min(540px,100%);background:var(--bg);overflow:auto;padding:16px;padding-top:calc(16px + env(safe-area-inset-top,0px))}
+.drawer.open .sheet{animation:slide .35s cubic-bezier(.2,.8,.2,1)}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:99px;display:none;z-index:120;font-weight:500;animation:toastIn .35s}
+.pubbar{position:fixed;left:50%;bottom:86px;transform:translateX(-50%) translateY(220%);z-index:110;display:flex;gap:14px;align-items:center;background:var(--card2);border:1px solid var(--brand);padding:8px 8px 8px 20px;border-radius:99px;box-shadow:0 20px 50px -10px #000;transition:transform .45s cubic-bezier(.2,.9,.3,1.2);max-width:calc(100% - 24px);font-size:.9rem}.pubbar.show{transform:translateX(-50%)}
+.conf{position:fixed;width:8px;height:8px;border-radius:2px;pointer-events:none;z-index:130}
+/* motion */
+.rv{opacity:0;transform:translateY(28px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1);transition-delay:calc(var(--d,0)*90ms)}.rv.in{opacity:1;transform:none}
+@keyframes fade{from{opacity:0}}@keyframes rise{from{opacity:0;transform:translateY(34px) scale(.97)}}@keyframes float{50%{transform:translateY(-10px)}}
+@keyframes mq{to{transform:translateX(-50%)}}@keyframes ping{to{transform:scale(3.2);opacity:0}}@keyframes rip{to{transform:scale(4);opacity:0}}
+@keyframes pulse{50%{opacity:.55}}@keyframes grow{from{width:0}}@keyframes pop{0%{transform:scale(.6)}60%{transform:scale(1.25)}100%{transform:scale(1)}}
+@keyframes flash{0%{box-shadow:0 0 0 0 rgba(168,230,127,.7)}100%{box-shadow:0 0 0 22px rgba(168,230,127,0)}}
+@keyframes glow{0%,100%{box-shadow:none}30%{box-shadow:0 0 0 3px var(--brand),0 0 50px rgba(168,230,127,.35)}}
+@keyframes sheet{from{opacity:0;transform:translateY(40px) scale(.95)}}@keyframes slide{from{transform:translateX(100%)}}@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.rv{opacity:1;transform:none}}
+
+/* ===== CLEAN REDESIGN: light theme, separate animated pages ===== */
+:root{color-scheme:light;--bg:#fbf6ee;--bg2:#f4ebdd;--card:#fff;--card2:#f6ede0;--ink:#2b1d16;--mute:#7b6c62;--brand:#b4532a;--brand2:#7a3417;--brand-ink:#fff;--gold:#d99a2b;--line:rgba(70,40,20,.12);--ok:#8be07a;--low:#f2c35b;--out:#ff9a8f}
+body{background:var(--bg);animation:none}
+input,select,textarea{background:#fff}.pimg,.thumb{background:#f1e4d2}.meter{background:rgba(70,40,20,.1)}.x{background:#fff!important;color:var(--ink)!important}
+.rv,.rv.in{opacity:1;transform:none;transition:none}
+.page{display:none;min-height:100vh;padding:96px 20px 60px;position:relative}.page.on{display:block}
+.page.on .rv{animation:rise2 .9s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--d,0)*110ms + .55s)}
+@keyframes rise2{from{opacity:0;transform:translateY(40px) scale(.98);filter:blur(6px)}}
+.enter{animation-delay:calc(var(--i,0)*90ms + .55s)!important}
+.topnav{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:60;transition:.3s}.topnav.scrolled{background:rgba(251,246,238,.88);backdrop-filter:blur(14px);box-shadow:0 1px 0 var(--line)}
+.topnav .in{gap:8px;max-width:1100px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.topnav .brand{display:flex;align-items:center;gap:10px;font:600 1.1rem Fraunces,Georgia,serif;color:var(--ink);text-decoration:none}
+.topnav .links{display:flex;gap:4px}.topnav .links a{color:var(--mute);text-decoration:none;font-weight:600;font-size:.92rem;padding:8px 14px;border-radius:99px;transition:.25s}
+.topnav .links a:hover{color:var(--ink)}.topnav .links a.act{background:var(--ink);color:var(--bg)}
+@media(max-width:560px){.topnav .brand span:last-child{display:none}.topnav .links a{padding:7px 11px;font-size:.85rem}}
+#curtain{position:fixed;inset:0;z-index:200;pointer-events:none;transform:translateY(100%);display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,#c8643a,#7a3417);color:#fff}
+#curtain div{text-align:center;font:600 clamp(2rem,7vw,4rem) Fraunces,Georgia,serif}#curtain small{display:block;font:500 .85rem Inter,sans-serif;letter-spacing:.3em;text-transform:uppercase;opacity:.7;margin-bottom:8px}
+.blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5;animation:drift 14s ease-in-out infinite alternate;pointer-events:none}
+.b1{width:420px;height:420px;background:#f6c89f;top:-80px;right:-100px}.b2{width:360px;height:360px;background:#f3b6a0;bottom:0;left:-120px;animation-delay:-6s}
+@keyframes drift{to{transform:translate(50px,40px) scale(1.15)}}
+.hero2{max-width:1100px;margin:0 auto;display:grid;gap:40px;align-items:center;min-height:calc(100vh - 160px);position:relative}
+@media(min-width:880px){.hero2{grid-template-columns:1.05fr 1fr}}
+.hero2 h1{font-size:clamp(2.6rem,7vw,4.8rem);line-height:1.02;margin:14px 0 16px}
+.w{display:inline-block;animation:word .9s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--w)*130ms + .6s)}@keyframes word{from{opacity:0;transform:translateY(60%) rotate(5deg);filter:blur(8px)}}
+.pillx{display:inline-flex;gap:8px;align-items:center;padding:7px 14px;border-radius:99px;background:#fff;border:1px solid var(--line);font-size:.85rem;color:var(--brand2);margin:0}
+.lead{font-size:1.1rem;color:var(--mute);max-width:46ch;margin:0 0 26px}
+.cta{display:flex;gap:12px;flex-wrap:wrap}.btn.ghost,button.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+.stats{display:flex;gap:34px;margin-top:34px;flex-wrap:wrap}.stats b{display:block;font:600 1.9rem Fraunces,Georgia,serif;color:var(--brand)}.stats span{font-size:.85rem;color:var(--mute)}
+.orb{position:relative;width:min(440px,84vw);aspect-ratio:1;margin:0 auto}
+.orb .ring{position:absolute;inset:-18px;border-radius:50%;border:2px dashed rgba(180,83,42,.35);animation:spin 40s linear infinite}
+.orb #heroArt{position:absolute;inset:0;border-radius:50%;overflow:hidden;box-shadow:0 40px 80px -30px rgba(122,52,23,.55);animation:pop2 1.4s cubic-bezier(.2,1.2,.3,1) .5s both}
+.orb #heroArt svg,.orb #heroArt img{width:100%;height:100%;object-fit:cover}
+.orb .em{position:absolute;font-size:2.2rem;animation:float 5s ease-in-out infinite;filter:drop-shadow(0 8px 10px rgba(0,0,0,.2))}
+@keyframes spin{to{transform:rotate(360deg)}}@keyframes pop2{from{transform:scale(.3) rotate(-30deg);opacity:0}}
+.head{max-width:1100px;margin:0 auto 34px}.head h2{font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.05;margin:8px 0 12px}.head p{margin:0 0 14px}
+.narrow{max-width:640px;margin:0 auto}.hls{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));max-width:1100px;margin:50px auto 0}
+.hl{background:#fff}.about{max-width:1100px;margin:44px auto 0;padding:34px;border-radius:28px;background:var(--card2);font:500 1.15rem/1.7 Fraunces,Georgia,serif}
+.wrapx{max-width:1100px;margin:0 auto}#faqList details{background:#fff;border:1px solid var(--line);border-radius:18px;padding:0 20px;margin-bottom:12px}
+.panel{background:#fff;box-shadow:0 30px 60px -40px rgba(122,52,23,.4)}
+.foot2{text-align:center;color:var(--mute);font-size:.85rem;padding:40px 0 0}.foot2 a{cursor:pointer;text-decoration:underline}
+.pubbar{visibility:hidden}.pubbar.show{visibility:visible}
+
+.pillx{display:block;background:none;border:0;padding:0;border-radius:0;color:var(--mute);font-size:.98rem}
+html[data-theme=dark]{color-scheme:dark;--bg:#14100d;--bg2:#1c1612;--card:#1f1915;--card2:#2a211b;--ink:#f6ede3;--mute:#b5a597;--brand:#e5814f;--brand2:#9a4520;--line:rgba(255,235,220,.13)}
+.hl,.panel,#faqList details{background:var(--card)}input,select,textarea{background:var(--card)}.x{background:var(--card)!important}.pimg,.thumb{background:var(--card2)}
+html[data-theme=dark] .topnav.scrolled{background:rgba(20,16,13,.88)}html[data-theme=dark] .blob{opacity:.18}html[data-theme=dark] .btn{color:#fff}
+#theme{width:40px;height:40px;padding:0;border-radius:50%;background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line);font-size:1.05rem;flex:none}
+.navr{display:flex;align-items:center;gap:8px}
+#splash{position:fixed;inset:0;z-index:300;display:grid;place-items:center;text-align:center;padding:24px;background:radial-gradient(circle at 50% 30%,#cf6b3d,#7a3417 72%);color:#fff;overflow:hidden}
+#splash>div{position:relative}#splash .e{font-size:4.2rem;display:block;animation:float 4s ease-in-out infinite}
+#splash small{letter-spacing:.38em;text-transform:uppercase;opacity:.8;font-size:.78rem}
+#splash h1{font:600 clamp(2.5rem,9vw,5.6rem)/1.02 Fraunces,Georgia,serif;margin:14px 0 14px}#splash p{opacity:.88;max-width:40ch;margin:0 auto 30px}
+#splash .go2{background:#fff;color:#7a3417;padding:16px 42px;font-size:1.05rem;width:auto}
+#splash>div>*{animation:rise2 1s cubic-bezier(.2,.8,.2,1) both}#splash>div>*:nth-child(2){animation-delay:.15s}#splash>div>*:nth-child(3){animation-delay:.3s}#splash>div>*:nth-child(4){animation-delay:.45s}#splash>div>*:nth-child(5){animation-delay:.6s}
+#splash .f{position:absolute;font-size:2.4rem;opacity:.3;animation:float 6s ease-in-out infinite}
+.page{overflow-x:clip}html{overflow-x:hidden}
+</style>
+</head>
+<body>
+<div id="splash"><span class="f" style="left:10%;top:14%">🍰</span><span class="f" style="right:12%;top:20%;animation-delay:-2s">☕</span><span class="f" style="left:16%;bottom:16%;animation-delay:-4s">🍓</span><span class="f" style="right:10%;bottom:12%;animation-delay:-1s">✨</span>
+  <div><span class="e">🍰</span><small>Welcome to</small><h1 id="splashName"></h1><p id="splashTag"></p><button class="go2" id="splashGo">Enter →</button></div></div>
+<div class="progress" id="progress"></div>
+<div id="curtain"><div><small>Maidanmoussecups</small><span id="curtainTxt"></span></div></div>
+<nav class="topnav" id="nav"><div class="in">
+  <a class="brand" href="#/home"><span class="mark" data-ico="cake"></span><span id="brand"></span></a>
+  <div class="links"><a href="#/home" data-nav="home">Home</a><a href="#/batch" data-nav="batch">Batch</a><a href="#/faq" data-nav="faq">Q&amp;A</a><a href="#/book" data-nav="book">Book</a></div><button id="theme" aria-label="Dark mode">🌙</button></div></nav>
+
+<!-- PAGE 1: HOME -->
+<main class="page" id="p-home"><div class="blob b1"></div><div class="blob b2"></div>
+  <div class="hero2">
+    <div>
+      <p class="eyebrow rv" style="margin:0">Fresh batch on the Maidan today</p>
+      <h1 id="heroTitle"></h1>
+      <p class="lead rv" id="tagline" style="--d:3"></p>
+      <div class="cta rv" style="--d:4"><a class="btn" href="#/book">Pre-book yours <span data-ico="arrow"></span></a><a class="btn ghost" href="#/batch">See today’s batch</a></div>
+      <div class="stats rv" style="--d:5"><div><b data-count="0" id="sPieces">0</b><span>pieces left</span></div><div><b id="sRating">–</b><span>rating</span></div><div><b>Pay later</b><span>at pick-up</span></div></div>
+      <p class="mute rv" style="--d:6;margin-top:22px">📍 <b id="fSpot"></b> · <span id="fTime"></span> · <span id="fRate"></span></p>
+    </div>
+    <div class="orb rv" style="--d:2"><div class="ring"></div><div id="heroArt"></div>
+      <span class="em" style="left:-6%;top:12%">🍰</span><span class="em" style="right:-4%;top:4%;animation-delay:-1.5s">☕</span><span class="em" style="right:2%;bottom:6%;animation-delay:-3s">🍓</span><span class="em" style="left:4%;bottom:0;animation-delay:-2s">✨</span></div>
+  </div>
+  <div class="hls" id="highlights"></div>
+  <p class="about rv" id="about"></p>
+</main>
+
+<!-- PAGE 2: TODAY'S BATCH -->
+<main class="page" id="p-batch"><div class="blob b1"></div>
+  <div class="head"><div class="eyebrow rv">Today’s batch</div><h2 class="rv" style="--d:1">Fresh from our basket</h2><p class="pillx rv" style="--d:2" id="announce"></p></div>
+  <div class="wrapx"><div class="cats rv" style="--d:3" id="cats"></div><div class="grid" id="board"></div></div>
+</main>
+
+<!-- PAGE 3: Q&A -->
+<main class="page" id="p-faq"><div class="blob b2"></div>
+  <div class="narrow"><div class="head" style="margin-bottom:24px"><div class="eyebrow rv">Questions</div><h2 class="rv" style="--d:1">Good to know</h2></div>
+    <div id="faqList"></div>
+    <div class="panel rv" style="--d:3;margin-top:30px" id="alerts"><div class="eyebrow">Next batch</div><h2>Missed out? We’ll tell you</h2><p class="mute" id="alertText"></p>
+      <label for="aName">Your name</label><input id="aName"><label for="aPhone">WhatsApp / phone</label><input id="aPhone" inputmode="tel">
+      <p><button id="aGo">Notify me</button></p></div></div>
+</main>
+
+<!-- PAGE 4: BOOKING -->
+<main class="page" id="p-book"><div class="blob b1"></div>
+  <div class="narrow"><div class="head" style="margin-bottom:24px"><div class="eyebrow rv">Pre-book</div><h2 class="rv" style="--d:1">Hold your piece</h2><p class="mute rv" style="--d:2">Reserve now, pay at pick-up. Your hold is kept for the slot you pick.</p></div>
+    <div class="panel rv" style="--d:3" id="book">
+      <div class="grid2"><div><label for="bName">Your name</label><input id="bName" autocomplete="name"></div><div><label for="bPhone">Phone / WhatsApp</label><input id="bPhone" inputmode="tel" autocomplete="tel"></div></div>
+      <div class="grid2"><div><label for="bItem">Item</label><select id="bItem"></select></div><div><label for="bQty">Quantity</label><input id="bQty" type="number" min="1" value="1"></div></div>
+      <label for="bSlot">Pick-up time</label><select id="bSlot"></select>
+      <label for="bNote">Note (optional)</label><textarea id="bNote" rows="2"></textarea>
+      <p><button id="bGo" class="go">Hold my order</button></p><div id="passArea"></div></div></div>
+</main>
+<footer class="foot2" style="position:relative;padding:0 0 30px;margin-top:-40px"><span id="fbrand"></span> · <a id="ownerLink">Owner</a></footer>
+<div class="pubbar" id="pubbar"><span>Changes not live yet</span><button id="pubGo">Publish to everyone</button></div>
+<div class="detail" id="detail"></div>
+
+<!-- ===== 4. OWNER EDIT DRAWER (PIN protected) ===== -->
+<div class="drawer" id="drawer"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<!-- CLOUD SYNC: automatic. When this page is opened from the shop server (app.js) it connects by itself. Keep "cloudUrl" empty.
+      Leave it empty ("") to keep the old single-device behaviour. -->
+<!-- =====================================================================
+ SHOP SETTINGS — EDIT HERE (or use the Owner panel in the page).
+ This JSON is the "official" copy every visitor sees. Dates/IDs: leave as is.
+ - pinHash: PIN is stored scrambled (default PIN = 1234). Change it in Owner panel.
+ - whatsapp: owner number WITH country code, digits only (91 = India).
+ - items: name, emoji, desc, price (₹), stock (pieces left), low (Low Stock at or below this),
+   group (section heading, e.g. Cakes), avail (auto | ok | low | out | hidden),
+   unit (word after the count: slices / cups / pieces), max (max per order, 0 = no limit)
+ - heroTitle: big headline at the top; img: optional photo (added from the Owner panel)
+ - slots: pick-up time choices shown in the form
+ ====================================================================== -->
+<script type="application/json" id="site-config">
+{
+  "updatedAt": 1795504566277,
+  "cloudUrl": "",
+  "heroTitle": "Find & Get Your Best Cake",
+  "shopName": "Maidanmoussecups",
+  "tagline": "Fresh, handmade, sold straight from our basket on the Maidan.",
+  "whatsapp": "919999999999",
+  "pinHash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+  "spot": "Near Victoria Memorial, south gate side",
+  "timing": "4:30 PM – 7:30 PM",
+  "dateNote": "Today",
+  "alertText": "Sold out before you got one? Leave your number and we’ll message you when the next batch is ready.",
+  "about": "We are a couple who walk the Maidan every day with a basket of fresh cakes and tiramisu, made that morning and sold straight to you. When it is gone, it is gone, so pre-book to hold yours.",
+  "highlights": ["Baked fresh every day|Small batches, made the same day we sell them.", "Find us on the Maidan|We walk to you. Today’s spot and timing are always shown at the top.", "Hold it, pay later|Pre-book a piece and pay only when you pick it up."],
+  "faq": ["How do holds work?|Choose your piece and a time slot, get a booking pass, then send it to us on WhatsApp. Show the pass at pick-up and pay then.", "Where will you be today?|Today’s spot and timing are shown at the very top of this page. They can change from day to day.", "What if it is sold out?|Leave your name and number in the next-batch alert and we will message you when the next batch is ready.", "Can I rate what I tried?|Yes. Open any item and tap the stars."],
+  "slots": ["4:30 – 5:00 PM", "5:00 – 5:30 PM", "5:30 – 6:00 PM", "6:00 – 6:30 PM", "6:30 – 7:00 PM"],
+  "items": [
+    {"id": "choc-cake", "name": "Chocolate Cake Slice", "emoji": "🍰", "group": "Cakes", "avail": "auto", "desc": "Moist, rich, fresh today", "price": 80, "stock": 20, "low": 5, "unit": "slices", "max": 10},
+    {"id": "tiramisu", "name": "Tiramisu Cup", "emoji": "☕", "group": "Tiramisu", "avail": "auto", "desc": "Coffee-soaked, creamy, chilled", "price": 120, "stock": 12, "low": 4, "unit": "cups", "max": 6}
+  ]
+}
+</script>
+
+<script id="gs-code">
+/* AUTO-CONNECT: if this page is opened from the shop server (app.js), find its /api by itself. Owner never pastes any link. */
+(function(){ var u=''; try{ if(/^https?:$/.test(location.protocol)){ var x=new XMLHttpRequest(); x.open('GET', location.origin+'/api?action=ver&t='+Date.now(), false); x.send(); var j=JSON.parse(x.responseText); if(x.status===200 && (j.empty || j.v!==undefined)) u=location.origin+'/api'; } }catch(e){} window.__AUTO_CLOUD=u; })();
+</script>
+<script>
+/* ===== Snapshot of the page BEFORE anything is drawn; used by "Download Updated HTML" ===== */
+const ORIGINAL = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+
+/* ===== Small helpers ===== */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store = {                       // localStorage that never crashes the page
+  get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ return false; } }
+};
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.style.display='block'; clearTimeout(toast.t); toast.t=setTimeout(()=>t.style.display='none',2600); }
+async function sha(s){ const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
+
+/* ===== Settings: the page's built-in copy, unless the owner saved a NEWER one on THIS device ===== */
+const BASE = JSON.parse($('site-config').textContent);
+const CLOUD = String(BASE.cloudUrl || window.__AUTO_CLOUD || '').trim();   // auto-connects to the shop server
+const IN_CLAUDE = !!(window.claude && window.claude.use);   // publish button only works inside Claude   // empty = old local-only mode
+let cfg = (() => {
+  if (CLOUD) { const c = store.get('mc_cloud_cfg', null); return c || JSON.parse(JSON.stringify(BASE)); }
+  const l = store.get('mc_owner_cfg', null); return (l && l.updatedAt > BASE.updatedAt) ? l : JSON.parse(JSON.stringify(BASE)); })();
+for (const k of ['about','highlights','faq','heroTitle']) if (cfg[k]===undefined) cfg[k] = BASE[k];   // fill new fields on older saved copies
+let dirty = false, owner = false, ownerAuth = '', pendingStock = {}, cloudOrders = [], lastV = 0;                    // true only after the correct PIN (lost on refresh)
+function saveCfg(){ if (CLOUD){ render(); cloudSave(); return true; } cfg.updatedAt = Date.now(); const ok = store.set('mc_owner_cfg', cfg); dirty = true; render(); autoPublish(); return ok; }
+
+/* ===== Holds made on this device reduce what is shown as remaining ===== */
+const holds = () => store.get('mc_holds', []);
+function rawLeft(it){ if (CLOUD) return Math.max(0, it.stock); return Math.max(0, it.stock - holds().filter(h => h.itemId===it.id && h.stamp===cfg.updatedAt).reduce((a,h)=>a+h.qty,0)); }
+/* Availability override (set per item in Owner panel): auto | ok | low | out | hidden */
+function remaining(it){ return (it.avail==='out' || it.avail==='hidden') ? 0 : rawLeft(it); }
+function status(it){
+  if (it.avail==='hidden') return ['Hidden (only you see this)','Sold'];
+  const r = remaining(it);
+  if (r<=0) return ['Sold Out','Sold'];
+  if (it.avail==='low') return ['Low Stock','Low'];
+  if (it.avail==='ok') return ['Available','Available'];
+  return r<=it.low ? ['Low Stock','Low'] : ['Available','Available'];   // auto
+}
+
+/* ===== PICTURES: owner photo if uploaded, otherwise a drawn cake picture (no internet needed) ===== */
+const ARTS = { choc:['#5a2d1c','#3a1a10','#f3e1cc','#3a1a10','cherry'], straw:['#f7e4d0','#ecc9a8','#fff6ea','#e5424f','berry'],
+               tira:['#e2c08f','#c49a66','#f7ecd6','#3e2314','cocoa'], vanilla:['#f6dfb0','#e7c07f','#fffaf0','#f2b84b','mint'] };
+let artN = 0;
+function art(it){
+  if (it.img) return `<img src="${esc(it.img)}" alt="${esc(it.name)}">`;
+  const n = (it.name+' '+(it.group||'')).toLowerCase();
+  const k = /tira/.test(n) ? 'tira' : /straw|berry/.test(n) ? 'straw' : /choc|brownie|cocoa/.test(n) ? 'choc' : 'vanilla';
+  const [a,b,cr,top,g] = ARTS[k], id = 'g'+String(it.id).replace(/\W/g,'');
+  const garnish = g==='cherry' ? `<circle cx="200" cy="120" r="14" fill="#c0392b"/><path d="M200 107c4-14 12-18 20-20" stroke="#5b8a3a" stroke-width="3" fill="none"/>`
+    : g==='berry' ? [150,200,250].map(x=>`<path d="M${x} 140c-18-6-20-26-6-30 6-1 6 3 6 3s0-4 6-3c14 4 12 24-6 30z" fill="${top}"/><circle cx="${x}" cy="109" r="4" fill="#4c8a3a"/>`).join('')
+    : g==='cocoa' ? Array.from({length:30},(_,i)=>`<circle cx="${135+(i*37%130)}" cy="${128+(i*53%22)}" r="2.2" fill="#2a160c" opacity=".7"/>`).join('')
+    : `<path d="M200 124c-20-30-52-24-48 0 4 16 30 14 48 0zM200 124c20-30 52-24 48 0-4 16-30 14-48 0z" fill="#5fae4d"/>`;
+  const drip = k==='choc' ? `<path d="M105 140h190v6q-6 26-16 20t-10-26q-8 34-20 28t-8-28q-10 22-20 16t-8-14q-12 30-24 22t-8-26q-10 18-18 12t-6-10z" fill="${top}"/>` : '';
+  return `<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" role="img" aria-label="${esc(it.name)}"><defs>
+    <radialGradient id="${id}b" cx=".72" cy=".1" r="1.1"><stop offset="0" stop-color="#2f7a3f"/><stop offset=".55" stop-color="#103420"/><stop offset="1" stop-color="#08110b"/></radialGradient>
+    <linearGradient id="${id}s" x1="0" x2="1"><stop offset="0" stop-color="${a}"/><stop offset=".5" stop-color="${b}"/><stop offset="1" stop-color="${a}"/></linearGradient></defs>
+    <rect width="400" height="300" fill="url(#${id}b)"/><circle cx="60" cy="50" r="2" fill="#fff" opacity=".5"/><circle cx="340" cy="90" r="3" fill="#fff" opacity=".35"/><circle cx="310" cy="30" r="1.8" fill="#fff" opacity=".5"/>
+    <ellipse cx="200" cy="248" rx="170" ry="30" fill="#e9f1ea" opacity=".93"/><ellipse cx="200" cy="252" rx="140" ry="20" fill="#000" opacity=".15"/>
+    <path d="M105 140v92a95 22 0 0 0 190 0v-92z" fill="url(#${id}s)"/>
+    <path d="M105 172a95 22 0 0 0 190 0v12a95 22 0 0 1-190 0z" fill="${cr}"/><path d="M105 204a95 22 0 0 0 190 0v12a95 22 0 0 1-190 0z" fill="${cr}"/>
+    <ellipse cx="200" cy="140" rx="95" ry="24" fill="${k==='tira'||k==='choc'?top:cr}"/>${drip}${garnish}</svg>`;
+}
+function shrink(file, cb){                 // shrinks an uploaded photo so the page stays light
+  const r = new FileReader(); r.onload = () => { const im = new Image(); im.onload = () => {
+    const s = Math.min(1, (CLOUD?640:800)/Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = im.width*s; c.height = im.height*s;
+    c.getContext('2d').drawImage(im,0,0,c.width,c.height); cb(c.toDataURL('image/jpeg', CLOUD?.72:.8)); }; im.src = r.result; }; r.readAsDataURL(file);
+}
+
+/* ===== RATINGS: visitors tap 1-5 stars (one per item per device, changeable). Owner sets a starting average + count. ===== */
+const myRatings = () => store.get('mc_ratings', {});
+function ratingInfo(it){ const n = it.ratingCount||0, mine = myRatings()[it.id]||0, cnt = n + (mine?1:0); return {avg: cnt ? ((it.ratingAvg||0)*n + mine)/cnt : 0, cnt, mine}; }
+function rateWidget(it){ const r = ratingInfo(it);
+  return `<div class="stars" data-rate="${esc(it.id)}">` + [1,2,3,4,5].map(n => `<button class="${r.mine>=n?'on':''}" data-star="${n}" aria-label="Rate ${n} of 5">★</button>`).join('')
+    + `<span class="mute">${r.cnt ? r.avg.toFixed(1)+' ('+r.cnt+')' : 'Be the first to rate'}${r.mine?' · you gave '+r.mine:''}</span>`
+    + (r.mine ? `<a href="${waLink('My rating for '+it.name+': '+r.mine+'/5')}" target="_blank" rel="noopener">Tell us on WhatsApp</a>` : '') + '</div>'; }
+
+/* ===== ICONS (line icons used across the page) ===== */
+const IC = { pin:'<path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>', clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  cake:'<path d="M4 20h16M5 20v-7h14v7M5 13c2 0 2-2 4-2s2 2 3 2 1.500-2 3.500-2 2 2 4 2M12 8V5"/>', star:'<path d="M12 3l2.700 5.600 6.100.9-4.400 4.300 1 6.100L12 17l-5.400 2.900 1-6.100L3.200 9.500l6.100-.9z"/>',
+  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>', bag:'<path d="M6 8h12l-1 12H7zM9 8a3 3 0 0 1 6 0"/>' };
+const ico = n => `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${IC[n]||''}</svg>`;
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ===== MOTION & FEEDBACK: scroll reveal, count-up, ripple, confetti, shake ===== */
+function runCount(el){ if (el.dataset.done) return; el.dataset.done = 1; const to = +el.dataset.count||0; if (reduce || !to){ el.textContent = to; return; }
+  const t0 = performance.now(); (function f(t){ const k = Math.min(1,(t-t0)/1000); el.textContent = Math.round(to*(1-Math.pow(1-k,3))); if (k<1) requestAnimationFrame(f); })(t0); }
+function setCount(el,n){ el.dataset.count = n; if (el.dataset.done) el.textContent = n; }
+const io = new IntersectionObserver(es => es.forEach(en => { if (!en.isIntersecting) return; en.target.classList.add('in');
+  [en.target, ...en.target.querySelectorAll('[data-count]')].forEach(e => e.dataset && e.dataset.count!==undefined && runCount(e)); io.unobserve(en.target); }), {threshold:.12});
+function setHTML(el, html){ if (el._h === html) return; const had = el._h !== undefined; el._h = html; el.innerHTML = html;
+  el.querySelectorAll('.rv:not(.in)').forEach(x => had ? x.classList.add('in') : io.observe(x)); }
+function hydrate(){ document.querySelectorAll('[data-ico]').forEach(e => { if (!e.dataset.h){ e.innerHTML = ico(e.dataset.ico); e.dataset.h = 1; } }); }
+function burst(el){ if (reduce) return; const r = el.getBoundingClientRect(), cols = ['#a8e67f','#e9c46a','#f3f1e8','#e5424f'];
+  for (let i=0;i<24;i++){ const p = document.createElement('i'); p.className = 'conf'; p.style.cssText = `left:${r.left+r.width/2}px;top:${r.top+r.height/2}px;background:${cols[i%4]}`; document.body.appendChild(p);
+    const a = Math.random()*Math.PI*2, d = 60+Math.random()*120;
+    p.animate([{transform:'translate(0,0) scale(1)',opacity:1},{transform:`translate(${Math.cos(a)*d}px,${Math.sin(a)*d+70}px) rotate(${Math.random()*540}deg) scale(.5)`,opacity:0}],{duration:900+Math.random()*500,easing:'cubic-bezier(.2,.7,.3,1)'}).onfinish = () => p.remove(); } }
+function shake(id){ const e = $(id); e.classList.add('err'); if (!reduce) e.animate([{transform:'translateX(0)'},{transform:'translateX(-7px)'},{transform:'translateX(7px)'},{transform:'translateX(-4px)'},{transform:'translateX(0)'}],{duration:380}); setTimeout(() => e.classList.remove('err'), 1500); }
+function bad(ids, msg){ ids.forEach(shake); toast(msg); }
+document.addEventListener('pointerdown', e => { const b = e.target.closest('button,.btn'); if (!b || b.disabled || reduce) return; const r = b.getBoundingClientRect(), s = Math.max(r.width,r.height);
+  const d = document.createElement('span'); d.className = 'ripple'; d.style.cssText = `width:${s}px;height:${s}px;left:${e.clientX-r.left-s/2}px;top:${e.clientY-r.top-s/2}px`; b.appendChild(d); setTimeout(() => d.remove(), 650); });
+addEventListener('scroll', () => { const h = document.documentElement; $('progress').style.transform = `scaleX(${scrollY/Math.max(1,h.scrollHeight-innerHeight)})`; $('nav').classList.toggle('scrolled', scrollY>10); }, {passive:true});
+
+/* ===== Draw the public page ===== */
+let filterGroup = 'all', openId = null, detailQty = 1, animCards = true, flashId = null, booted = false;
+const visible = () => cfg.items.filter(it => owner || it.avail!=='hidden');
+function card(it, i){
+  const [label, cls] = status(it), r = ratingInfo(it), gone = remaining(it)<=0, capN = it.cap || it.stock, pct = capN>0 ? Math.round(remaining(it)/capN*100) : 0;
+  const ctl = owner ? `<span class="stock"><button class="sm ghost" data-d="-1" data-id="${esc(it.id)}">−</button><button class="sm ghost" data-d="1" data-id="${esc(it.id)}">+</button></span>` : '';
+  return `<article class="pcard${animCards?' enter':''}${flashId===it.id?' flash':''}${gone?' soldout':''}" style="--i:${i}" data-open="${esc(it.id)}"><div class="pimg">${art(it)}<span class="badge ${cls}">${label}</span><span class="rchip">★ ${r.cnt ? r.avg.toFixed(1) : 'New'}</span></div>
+    <div class="pbody"><h3>${esc(it.name)}</h3><p class="mute">${esc(it.desc)}</p>
+    <div class="row"><span class="price">₹${esc(it.price)}</span><span class="mute">${remaining(it)} ${esc(it.unit||'pieces')} left</span></div><div class="meter"><i style="width:${pct}%"></i></div>
+    <div class="row" style="flex-wrap:nowrap">${ctl}<button class="go" data-hold="${esc(it.id)}" ${gone?'disabled':''}>${gone?'Sold out':'Pre-book'}</button></div></div></article>`;
+}
+function render(){
+  const items = visible(), first = items.find(i => remaining(i)>0) || items[0];
+  document.title = cfg.shopName.replace(/&amp;/g,'&');
+  ['brand','fbrand'].forEach(id => $(id).innerHTML = cfg.shopName);
+  setHTML($('heroTitle'), (cfg.heroTitle || 'Find & Get Your Best Cake').split(' ').map((w,i) => `<span class="w" style="--w:${i}">${esc(w)}</span>`).join(' '));
+  $('tagline').textContent = cfg.tagline; $('alertText').textContent = cfg.alertText; $('about').textContent = cfg.about || '';
+  $('announce').innerHTML = `${esc(cfg.dateNote)} · ${esc(cfg.spot)} · ${esc(cfg.timing)}`;
+  $('fSpot').textContent = cfg.spot; $('fTime').textContent = cfg.dateNote + ' · ' + cfg.timing;
+  setHTML($('heroArt'), first ? art(first) : '');
+  setCount($('sPieces'), items.reduce((a,i) => a + remaining(i), 0));
+  let sum = 0, cnt = 0; items.forEach(i => { const r = ratingInfo(i); sum += r.avg*r.cnt; cnt += r.cnt; });
+  $('sRating').textContent = cnt ? (sum/cnt).toFixed(1) : '–'; $('fRate').textContent = cnt ? '★ ' + (sum/cnt).toFixed(1) : 'Rate us';
+  setHTML($('highlights'), (cfg.highlights||[]).map((h,i) => { const [t,...d] = h.split('|'); return `<div class="hl rv" style="--d:${i}"><span class="hlic">${ico(['cake','clock','bag'][i%3])}</span><h3>${esc(t)}</h3><p>${esc(d.join('|').trim())}</p></div>`; }).join(''));
+  setHTML($('faqList'), (cfg.faq||[]).map(q => { const [a,...b] = q.split('|'); return `<details class="rv"><summary>${esc(a)}<span class="chev"></span></summary><p class="ans">${esc(b.join('|').trim())}</p></details>`; }).join(''));
+  const groups = [...new Set(items.map(i => i.group||'Menu'))];
+  if (filterGroup!=='all' && !groups.includes(filterGroup)) filterGroup = 'all';
+  setHTML($('cats'), [['all','All',null], ...groups.map(g => [g,g,items.find(i => (i.group||'Menu')===g)])].map(([k,l,it]) =>
+    `<button class="cat ${filterGroup===k?'on':''}" data-cat="${esc(k)}"><span class="thumb">${it ? art(it) : ico('cake')}</span>${esc(l)}</button>`).join(''));
+  setHTML($('board'), items.filter(it => filterGroup==='all' || (it.group||'Menu')===filterGroup).map(card).join('') || '<p class="mute">Nothing on the menu yet.</p>');
+  animCards = false; flashId = null;
+  const cur = $('bItem').value;
+  $('bItem').innerHTML = cfg.items.filter(it => it.avail!=='hidden').map(it => `<option value="${esc(it.id)}" ${remaining(it)<=0?'disabled':''}>${esc(it.name)} – ₹${esc(it.price)}${remaining(it)<=0?' (sold out)':''}</option>`).join('');
+  if (cur) $('bItem').value = cur;
+  $('bSlot').innerHTML = cfg.slots.map(s => `<option>${esc(s)}</option>`).join('');
+  hydrate(); $('pubbar').classList.toggle('show', owner && dirty && !CLOUD);
+  if (!IN_CLAUDE){ $('pubbar').querySelector('span').textContent = 'Saved on this device only'; $('pubGo').textContent = 'Download updated file'; }
+  if (openId) renderDetail();
+  if (owner) renderOwner();
+  if (!booted){ booted = true; document.querySelectorAll('.rv:not(.in)').forEach(el => io.observe(el)); }
+}
+function renderDetail(){
+  const it = cfg.items.find(i => i.id===openId); if (!it) return closeDetail();
+  const [label, cls] = status(it), cap = Math.max(1, Math.min(remaining(it), it.max||99)); detailQty = Math.min(detailQty, cap);
+  $('detail').innerHTML = `<div class="dsheet"><button class="x" data-close aria-label="Close">✕</button><div class="dimg">${art(it)}</div>
+    <div class="dinfo"><span class="badge ${cls}" style="justify-self:start">${label}</span><h2>${esc(it.name)}</h2>${rateWidget(it)}<p>${esc(it.desc)}</p>
+    <div class="qty"><span class="mute">How many?</span><button class="ghost" data-q="-1">−</button><b>${detailQty}</b><button class="ghost" data-q="1">+</button><span class="mute">${remaining(it)} ${esc(it.unit||'pieces')} left</span></div>
+    <div class="dbar"><div><div class="mute" style="color:#cfe9d4">Total</div><span class="price">₹${it.price*detailQty}</span></div><button class="go" data-hold="${esc(it.id)}" ${remaining(it)<=0?'disabled':''}>Pre-book now →</button></div></div></div>`;
+  $('detail').classList.add('open');
+}
+function closeDetail(){ openId = null; $('detail').classList.remove('open'); $('detail').innerHTML = ''; }
+function pickItem(id){
+  const it = cfg.items.find(i => i.id===id); if (!it || remaining(it)<=0) return;
+  $('bItem').value = id; $('bQty').value = openId ? detailQty : 1; closeDetail();
+  location.hash = '#/book';
+}
+
+/* One click handler for the whole page (cards, stars, categories, owner +/- buttons) */
+document.addEventListener('click', e => {
+  const t = e.target; let b;
+  if ((b = t.closest('button[data-d]'))) { if (!owner) return;            // owner-only stock +/-
+    const it = cfg.items.find(i => i.id===b.dataset.id), d = Number(b.dataset.d);
+    if (CLOUD){ it.stock = Math.max(0, it.stock + d); it.cap = Math.max(it.cap||0, it.stock); flashId = it.id; render();
+      cloudCall('adjust', {itemId: it.id, delta: d}).then(r => r && r.ok ? applyCloud(r.cfg) : toast(r && r.error ? r.error : 'Could not sync. Check internet.')); return; }
+    it.stock = Math.max(0, rawLeft(it) + d); flashId = it.id; return saveCfg(); }
+  if ((b = t.closest('[data-hold]'))) return pickItem(b.dataset.hold);
+  if ((b = t.closest('[data-star]'))) { const id = b.closest('[data-rate]').dataset.rate, r = myRatings(); r[id] = +b.dataset.star; store.set('mc_ratings', r); burst(b); render(); return toast('Thanks for rating!'); }
+  if ((b = t.closest('[data-q]'))) { detailQty = Math.max(1, detailQty + Number(b.dataset.q)); return renderDetail(); }
+  if ((b = t.closest('[data-cat]'))) { filterGroup = b.dataset.cat; animCards = true; return render(); }
+  if (t.closest('[data-close]') || t.id==='detail') return closeDetail();
+  if ((b = t.closest('[data-open]'))) { openId = b.dataset.open; detailQty = 1; return render(); }
+});
+document.addEventListener('keydown', e => { if (e.key==='Escape' && openId) closeDetail(); });
+
+/* ===== 2. Pre-book: reduces stock on this device and sends the request to the owners on WhatsApp ===== */
+function waLink(text){ return `https://wa.me/${cfg.whatsapp}?text=${encodeURIComponent(text)}`; }
+$('bGo').onclick = async () => {
+  const it = cfg.items.find(i => i.id===$('bItem').value);
+  const name = $('bName').value.trim(), phone = $('bPhone').value.trim(), qty = parseInt($('bQty').value,10);
+  if (!name || phone.replace(/\D/g,'').length < 10) return bad(['bName','bPhone'],'Please enter your name and a valid phone number.');
+  if (!it || !(qty>0)) return bad(['bItem','bQty'],'Choose an item and quantity.');
+  if (qty > remaining(it)) return bad(['bQty'],`Only ${remaining(it)} left.`);
+  if (it.max && qty > it.max) return toast(`Maximum ${it.max} per order.`);
+  const h = { code: 'MC-' + Math.random().toString(36).slice(2,6).toUpperCase(), name, phone, itemId: it.id, itemName: it.name,
+    qty, total: qty*it.price, slot: $('bSlot').value, note: $('bNote').value.trim(), at: new Date().toLocaleString('en-IN'),
+    stamp: cfg.updatedAt, spot: cfg.spot };
+  if (CLOUD){                                   // server checks the stock and saves the order for ALL devices
+    $('bGo').disabled = true; const r = await cloudCall('order', {order: h}); $('bGo').disabled = false;
+    if (r && r.cfg) applyCloud(r.cfg);
+    if (!r || !r.ok) return toast(r && r.error ? r.error : 'Could not reach the shop. Please check internet and try again.');
+  } else { store.set('mc_holds', [...holds(), h]); render(); }
+  const msg = `Hold request ${h.code}\n${h.qty} x ${h.itemName} (₹${h.total})\nName: ${h.name}\nPhone: ${h.phone}\nSlot: ${h.slot}\nSpot: ${h.spot}${h.note?'\nNote: '+h.note:''}`;
+  $('passArea').innerHTML = `<div class="pass"><div class="mute">Booking pass</div><b class="code">${esc(h.code)}</b>
+    <p>${h.qty} × ${esc(h.itemName)} · <b>₹${h.total}</b><br>${esc(h.name)} · ${esc(h.phone)}<br>🕓 ${esc(h.slot)}<br>📍 ${esc(h.spot)}</p>
+    <p class="mute">Pay at pick-up. Show this pass. <b>Tap below so we receive your request:</b></p>
+    <a href="${waLink(msg)}" target="_blank" rel="noopener"><button>Send to us on WhatsApp</button></a></div>`;
+  burst($('bGo')); $('passArea').scrollIntoView({behavior:'smooth',block:'nearest'});
+  ['bName','bPhone','bNote'].forEach(i => $(i).value=''); $('bQty').value=1;
+};
+
+/* ===== 3. Next-batch alert ===== */
+$('aGo').onclick = () => {
+  const name = $('aName').value.trim(), phone = $('aPhone').value.trim();
+  if (!name || phone.replace(/\D/g,'').length < 10) return bad(['aName','aPhone'],'Please enter your name and a valid number.');
+  store.set('mc_alerts', [...store.get('mc_alerts', []), {name, phone, at:new Date().toLocaleString('en-IN')}]);
+  if (CLOUD) cloudCall('alert', {name, phone});
+  $('aName').value = $('aPhone').value = '';
+  burst($('aGo')); toast('Saved! Tap WhatsApp to confirm.');
+  window.open(waLink(`Next-batch alert please!\nName: ${name}\nPhone: ${phone}`), '_blank', 'noopener');
+};
+
+/* ===== 4. OWNER PANEL ===== */
+$('ownerLink').onclick = () => { $('drawer').classList.add('open'); owner ? renderOwner() : renderLogin(); };
+const closeOwner = () => $('drawer').classList.remove('open');
+function renderLogin(){
+  $('sheet').innerHTML = `<div class="row"><h2>Owner login</h2><button class="ghost sm" id="xClose">Close</button></div>
+    <label for="pin">Enter PIN</label><input id="pin" type="password" inputmode="numeric" autocomplete="off">
+    <p><button id="pinGo">Unlock</button></p><p class="mute">Default PIN is 1234 — change it after your first login.</p>`;
+  $('xClose').onclick = closeOwner;
+  $('pinGo').onclick = async () => {
+    if (CLOUD){ const a = await sha($('pin').value), r = await cloudCall('login', {auth: a});
+      if (r && r.ok){ ownerAuth = a; owner = true; render(); toast('Owner mode on'); } else toast(r ? 'Wrong PIN' : 'Cannot reach server'); return; }
+    if (await sha($('pin').value) === cfg.pinHash){ owner = true; render(); toast('Owner mode on'); }
+    else toast('Wrong PIN');
+  };
+}
+function renderOwner(){
+  const f = (id, label, val, type='text') => `<label for="${id}">${label}</label><input id="${id}" type="${type}" value="${esc(val)}">`;
+  $('sheet').innerHTML = `<div class="row"><h2>Owner edit</h2><span><button class="ghost sm" id="oLock">Lock</button> <button class="ghost sm" id="xClose">Close</button></span></div>
+  <p class="mute">Stock +/− buttons also appear on the main page while unlocked.</p>
+  <div class="card"><h2>Shop &amp; spot</h2>
+    ${f('oShop','Shop name',cfg.shopName)}${f('oHero','Big headline',cfg.heroTitle||'')}${f('oTag','Tagline',cfg.tagline)}${f('oSpot','Today’s Maidan spot',cfg.spot)}
+    ${f('oDate','Day label (e.g. Sat 29 Nov)',cfg.dateNote)}${f('oTime','Timing',cfg.timing)}${f('oWa','Your WhatsApp (91XXXXXXXXXX)',cfg.whatsapp)}
+    ${f('oAlert','Alert-signup text',cfg.alertText)}
+    <label for="oAbout">Our story (landing page)</label><textarea id="oAbout" rows="4">${esc(cfg.about||'')}</textarea>
+    <label for="oHigh">Highlights (one per line: Title | short text)</label><textarea id="oHigh" rows="4">${esc((cfg.highlights||[]).join('\n'))}</textarea>
+    <label for="oFaq">FAQ (one per line: Question | Answer)</label><textarea id="oFaq" rows="5">${esc((cfg.faq||[]).join('\n'))}</textarea>
+    <label for="oSlots">Pick-up slots (one per line)</label><textarea id="oSlots" rows="5">${esc(cfg.slots.join('\n'))}</textarea></div>
+  <div class="card"><h2>Menu, prices &amp; stock</h2>
+    ${cfg.items.map((it,i)=>`<div class="item" data-i="${i}">
+      <div class="grid2"><div><label>Name</label><input class="iName" value="${esc(it.name)}"></div><div><label>Emoji</label><input class="iEmoji" value="${esc(it.emoji)}"></div></div>
+      <div class="grid2"><div><label>Section / main item (e.g. Cakes)</label><input class="iGroup" value="${esc(it.group||'')}"></div><div><label>Availability</label><select class="iAvail">${[['auto','Auto (from pieces left)'],['ok','Always Available'],['low','Show Low Stock'],['out','Sold Out'],['hidden','Hide from visitors']].map(([v,t])=>`<option value="${v}" ${(it.avail||'auto')===v?'selected':''}>${t}</option>`).join('')}</select></div></div>
+      <label>Cake picture (choose a photo any time to replace it)</label><div class="row" style="flex-wrap:nowrap"><span class="thumb" style="width:64px;height:64px;flex:none">${art(it)}</span><input class="iImg" type="file" accept="image/*"><button type="button" class="ghost sm" data-noimg="${i}">Drawn picture</button></div>
+      <label>Description</label><input class="iDesc" value="${esc(it.desc)}">
+      <div class="grid2"><div><label>Price ₹</label><input class="iPrice" type="number" value="${esc(it.price)}"></div><div><label>Pieces left</label><input class="iStock" type="number" value="${rawLeft(it)}" data-orig="${rawLeft(it)}"></div></div>
+      <div class="grid2"><div><label>“Low stock” at or below</label><input class="iLow" type="number" value="${esc(it.low)}"></div><div><label>Max per order (0 = none)</label><input class="iMax" type="number" value="${esc(it.max||0)}"></div></div>
+      <label>Unit shown after the count (slices, cups, pieces…)</label><input class="iUnit" value="${esc(it.unit||'pieces')}">
+      <div class="grid2"><div><label>Starting star rating (0–5)</label><input class="iRAvg" type="number" step="0.1" min="0" max="5" value="${esc(it.ratingAvg||0)}"></div><div><label>How many ratings that is</label><input class="iRCnt" type="number" min="0" value="${esc(it.ratingCount||0)}"></div></div>
+      <p><button class="ghost sm" data-rm="${i}">Remove item</button></p></div>`).join('')}
+    <button class="ghost" id="oAdd">+ Add menu item</button></div>
+  <p><button id="oSave">Save changes</button></p>
+  <div class="card"><h2>Publish for everyone</h2>
+    <p class="mute">Changes are saved on this phone first. Tap <b>Publish to everyone</b> and the live page updates for every visitor at the same link. It works while you are signed in to Claude with edit access to this page.</p><p><button id="oPub">Publish to everyone</button></p><p class="mute">Backup options:</p>
+    <button class="ghost" id="oDl">Download backup copy</button> <button class="ghost" id="oCopy">Copy HTML</button></div>
+  <div class="card"><h2>Reservations on this device</h2><div id="oRes"></div><button class="ghost sm" id="oCsv">Copy as CSV</button> <button class="ghost sm" id="oClr">Clear list</button>
+    <h2 style="margin-top:14px">Alert signups on this device</h2><div id="oAl"></div></div>
+  <div class="card"><h2>Change PIN</h2>${f('oPin','New PIN (4+ digits)','','password')}<p><button class="ghost" id="oPinGo">Update PIN</button></p></div>`;
+  const hs = holds(), al = store.get('mc_alerts', []);
+  $('oRes').innerHTML = hs.length ? hs.map(h=>`<p class="mute"><b>${esc(h.code)}</b> ${esc(h.name)} · ${esc(h.phone)}<br>${h.qty}× ${esc(h.itemName)} · ${esc(h.slot)}</p>`).join('') : '<p class="mute">None yet. Visitors’ requests reach you on WhatsApp.</p>';
+  $('oAl').innerHTML = al.length ? al.map(a=>`<p class="mute">${esc(a.name)} · ${esc(a.phone)}</p>`).join('') : '<p class="mute">None yet.</p>';
+  $('xClose').onclick = closeOwner;
+  $('sheet').querySelectorAll('.iImg').forEach(inp => inp.onchange = () => { const i = +inp.closest('.item').dataset.i, f = inp.files[0]; if (!f) return; readForm(); shrink(f, d => { cfg.items[i].img = d; const ok = saveCfg(); toast(ok ? (CLOUD ? 'Photo uploaded. It goes live on all devices in a few seconds.' : 'Photo saved as this cake’s picture. Tap Download Updated HTML to publish it.') : 'Photo too big for this device’s storage. Try a smaller one.'); }); });
+  $('sheet').querySelectorAll('[data-noimg]').forEach(b => b.onclick = () => { readForm(); delete cfg.items[+b.dataset.noimg].img; saveCfg(); });
+  $('oPub').onclick = () => { readForm(); saveCfg(); };
+  $('oLock').onclick = () => { owner = false; render(); renderLogin(); };
+  $('oAdd').onclick = () => { readForm(); cfg.items.push({id:'item-'+Date.now(),name:'New item',emoji:'🧁',desc:'',group:'',avail:'auto',price:100,stock:10,low:3,unit:'pieces',max:0,ratingAvg:0,ratingCount:0}); renderOwner(); };
+  $('sheet').querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { readForm(); cfg.items.splice(+b.dataset.rm,1); renderOwner(); });
+  $('oSave').onclick = () => { readForm(); saveCfg(); toast('Saved on this device'); };
+  $('oDl').onclick = () => { readForm(); saveCfg(); download(); };
+  $('oCopy').onclick = async () => { readForm(); saveCfg(); try{ await navigator.clipboard.writeText(buildHtml()); toast('HTML copied'); }catch(e){ toast('Copy blocked by browser'); } };
+  $('oCsv').onclick = async () => { const csv = ['code,name,phone,item,qty,total,slot,note'].concat((CLOUD?cloudOrders:holds()).map(h=>[h.code,h.name,h.phone,h.itemName,h.qty,h.total,h.slot,h.note].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','))).join('\n'); try{ await navigator.clipboard.writeText(csv); toast('CSV copied'); }catch(e){ toast('Copy blocked'); } };
+  $('oClr').onclick = () => { if (confirm('Clear reservations and alert lists on this device?')){ store.set('mc_holds',[]); store.set('mc_alerts',[]); render(); } };
+  $('oPinGo').onclick = async () => { const p=$('oPin').value; if (p.length<4) return toast('PIN too short'); cfg.pinHash = await sha(p); saveCfg(); toast('PIN updated'); };
+  if (CLOUD){
+    const pc = $('oPub').closest('.card');
+    pc.querySelector('h2').textContent = '☁️ Cloud sync is ON';
+    pc.innerHTML = '<h2>✅ Live for everyone</h2><p class="mute">Change anything above, then tap <b>Publish changes</b>. Every visitor sees it within a few seconds. Nothing else to set up.</p><button class="ghost" id="oDl2">Download backup copy</button>';
+    $('oDl2').onclick = () => { readForm(); download(); };
+    $('oSave').textContent = '🚀 Publish changes'; $('oSave').onclick = () => { readForm(); saveCfg(); };
+    $('oPinGo').onclick = async () => { const p = $('oPin').value; if (p.length < 4) return toast('PIN too short'); const na = await sha(p), r = await cloudCall('setPin', {newAuth: na}); if (r && r.ok){ ownerAuth = na; $('oPin').value = ''; toast('PIN changed'); } else toast(r && r.error ? r.error : 'Could not change PIN'); };
+    $('oRes').previousElementSibling.textContent = 'Orders (all devices)'; $('oAl').previousElementSibling.textContent = 'Next-batch alerts (all devices)';
+    $('oRes').innerHTML = '<p class="mute">Loading…</p>'; $('oAl').innerHTML = '';
+    $('oClr').onclick = () => toast('Orders are kept safely on the shop server.');
+    cloudCall('orders', {}).then(r => { if (!$('oRes')) return;
+      if (!r || !r.ok){ $('oRes').innerHTML = '<p class="mute">Could not load orders.</p>'; return; }
+      cloudOrders = r.orders;
+      $('oRes').innerHTML = r.orders.length ? r.orders.map(h=>`<p class="mute"><b>${esc(h.code)}</b> ${esc(h.name)} · ${esc(h.phone)}<br>${esc(h.qty)}× ${esc(h.itemName)} · ${esc(h.slot)} · ${esc(h.at)}</p>`).join('') : '<p class="mute">No orders yet.</p>';
+      $('oAl').innerHTML = r.alerts.length ? r.alerts.map(a=>`<p class="mute">${esc(a.name)} · ${esc(a.phone)}</p>`).join('') : '<p class="mute">None yet.</p>'; });
+  } else if (IN_CLAUDE){
+    const pc = $('oPub').closest('.card'); pc.querySelector('h2').textContent = '✅ Auto-publish is ON';
+    pc.querySelector('p.mute').textContent = 'Every time you tap Save (or use the stock + / − buttons) the live page for everyone updates by itself in a few seconds. Nothing else to do.';
+    $('oPub').textContent = 'Publish now';
+  } else {
+    const pc = $('oPub').closest('.card');
+    pc.innerHTML = '<h2>Publish for everyone</h2><p class="mute">This copy of the page is not connected to the shop’s live server, so changes would stay on this phone only. Open the shop from its main link and publish from there.</p><button class="ghost" id="oDl3">Download backup copy</button>'; $('oDl3').onclick = () => { readForm(); download(); };
+  }
+}
+function readForm(){                // copies the owner form fields into cfg
+  const v = id => $(id).value;
+  Object.assign(cfg, {shopName:v('oShop'), tagline:v('oTag'), heroTitle:v('oHero'), about:v('oAbout'), highlights:v('oHigh').split('\n').map(x=>x.trim()).filter(Boolean), faq:v('oFaq').split('\n').map(x=>x.trim()).filter(Boolean), spot:v('oSpot'), dateNote:v('oDate'), timing:v('oTime'),
+    whatsapp:v('oWa').replace(/\D/g,''), alertText:v('oAlert'), slots:v('oSlots').split('\n').map(s=>s.trim()).filter(Boolean)});
+  $('sheet').querySelectorAll('.item[data-i]').forEach(el => { const it = cfg.items[+el.dataset.i];
+    it.name=el.querySelector('.iName').value; it.group=el.querySelector('.iGroup').value.trim(); it.avail=el.querySelector('.iAvail').value; it.emoji=el.querySelector('.iEmoji').value; it.desc=el.querySelector('.iDesc').value;
+    it.price=+el.querySelector('.iPrice').value||0; it.stock=Math.max(0,+el.querySelector('.iStock').value||0);
+    { const f = el.querySelector('.iStock'); if (CLOUD && f.dataset.orig!==undefined && f.value!==f.dataset.orig) pendingStock[it.id] = it.stock; } it.low=+el.querySelector('.iLow').value||0;
+    it.max=Math.max(0,+el.querySelector('.iMax').value||0); it.unit=el.querySelector('.iUnit').value.trim()||'pieces';
+    it.ratingAvg=Math.min(5,Math.max(0,+el.querySelector('.iRAvg').value||0)); it.ratingCount=Math.max(0,Math.round(+el.querySelector('.iRCnt').value||0)); });
+}
+
+/* ===== PUBLISH LIVE: one tap updates the real page for everyone (owner must be signed in to Claude with edit access). Visitors cannot do this. ===== */
+let pubT = null;
+function autoPublish(){ if (CLOUD || !IN_CLAUDE) return; clearTimeout(pubT); pubT = setTimeout(publishLive, 1200); }   // owner just taps Save; it publishes itself
+async function publishLive(){
+  const btn = $('pubGo'); if (btn) btn.disabled = true;
+  try{
+    const a = (window.claude && claude.use) ? await claude.use('artifact') : null;
+    if (!a){ download(); toast('Updated file downloaded. Upload it to your host, or turn on cloud sync to go live automatically.'); dirty = false; render(); return; }
+    await a.publish(buildHtml()); dirty = false; render(); toast('Published! Everyone now sees your update.');
+  }catch(e){
+    const c = e && e.code;
+    toast(c==='not_writer' || c==='not_granted' ? 'This account cannot publish. Ask for edit access to this page.' : c==='conflict' ? 'Someone else just published. Reloading…' : 'Publish failed. Use Download backup copy.');
+  }finally{ if (btn) btn.disabled = false; }
+}
+$('pubGo').onclick = publishLive;
+
+/* ===== Build / download the updated single HTML file (settings baked in) ===== */
+function buildHtml(){
+  const doc = new DOMParser().parseFromString(ORIGINAL, 'text/html');
+  doc.querySelectorAll('script').forEach(sc => { if (sc.id!=='site-config' && sc.id!=='gs-code' && !sc.textContent.includes('const ORIGINAL')) sc.remove(); });   // drop anything the host injected
+  doc.getElementById('site-config').textContent = '\n' + JSON.stringify(cfg, null, 2).replace(/</g,'\\u003c') + '\n';
+  return '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
+}
+function download(){
+  try{ const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([buildHtml()],{type:'text/html'})); a.download='maidanmoussecups.html'; a.click(); toast('Downloading…'); }
+  catch(e){ toast('Download blocked — use Copy HTML'); }
+}
+
+/* ===== CLOUD SYNC (Google Sheets via Apps Script): live stock + orders on every device ===== */
+async function cloudCall(action, payload){
+  try{ const res = await fetch(CLOUD, {method:'POST', body: JSON.stringify(Object.assign({action, auth: ownerAuth}, payload))});   // text/plain body = no CORS preflight
+    return await res.json(); }catch(e){ return null; }
+}
+function applyCloud(c){ if (!c) return; cfg = Object.assign(c, {pinHash: BASE.pinHash, cloudUrl: BASE.cloudUrl}); lastV = c.updatedAt || 0; store.set('mc_cloud_cfg', cfg); render(); }
+async function cloudSave(){ const ss = pendingStock; pendingStock = {};
+  const r = await cloudCall('saveConfig', {cfg, stockSet: ss});
+  if (r && r.ok){ applyCloud(r.cfg); toast('Published! Live for everyone'); } else toast(r && r.error ? r.error : 'Could not sync. Check internet and save again.'); }
+async function cloudPull(){
+  if (!CLOUD || document.hidden) return;
+  try{
+    const v = await (await fetch(CLOUD + '?action=ver&t=' + Date.now())).json();
+    if (v.empty){ const seed = JSON.parse(JSON.stringify(BASE)); delete seed.pinHash; const r = await cloudCall('seed', {cfg: seed}); if (r && r.ok) applyCloud(r.cfg); return; }
+    if (v.v === lastV) return;                                     // nothing changed: tiny request only
+    if (owner && $('drawer').classList.contains('open')) return;   // don't wipe the owner's open form
+    const g = await (await fetch(CLOUD + '?action=get&t=' + Date.now())).json(); if (g.cfg) applyCloud(g.cfg);
+  }catch(e){}
+}
+
+render();
+/* ===== PAGE ROUTER with curtain animation ===== */
+const PAGES = {home:'Welcome', batch:'Today’s Batch', faq:'Questions', book:'Pre-book'};
+let curPage = null;
+function route(){
+  const r = location.hash.replace('#/','').split('?')[0], name = PAGES[r] ? r : 'home'; if (name===curPage) return;
+  const swap = () => { document.querySelectorAll('.page').forEach(p => p.classList.toggle('on', p.id==='p-'+name));
+    document.querySelectorAll('[data-nav]').forEach(a => a.classList.toggle('act', a.dataset.nav===name));
+    document.querySelectorAll('.pcard').forEach(e => { e.classList.remove('enter'); void e.offsetWidth; e.classList.add('enter'); });
+    scrollTo(0,0); curPage = name; closeDetail(); };
+  if (curPage===null || reduce) return swap();
+  const c = $('curtain'); $('curtainTxt').textContent = PAGES[name];
+  c.animate([{transform:'translateY(100%)'},{transform:'translateY(0)'}],{duration:520,easing:'cubic-bezier(.7,0,.2,1)',fill:'forwards'}).finished
+    .then(() => { swap(); c.animate([{transform:'translateY(0)'},{transform:'translateY(-100%)'}],{duration:620,delay:260,easing:'cubic-bezier(.7,0,.2,1)',fill:'forwards'}); });
+}
+addEventListener('hashchange', route);
+function setTheme(t){ document.documentElement.dataset.theme = t; store.set('mc_theme', t); $('theme').textContent = t==='dark' ? '☀️' : '🌙'; }
+$('theme').onclick = () => setTheme(document.documentElement.dataset.theme==='dark' ? 'light' : 'dark');
+setTheme(store.get('mc_theme', matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+let seen = false; try{ seen = sessionStorage.getItem('mc_seen')==='1'; }catch(e){}
+if (seen){ $('splash').remove(); route(); }
+else { $('splashName').innerHTML = cfg.shopName; $('splashTag').textContent = cfg.tagline;
+  $('splashGo').onclick = () => { try{ sessionStorage.setItem('mc_seen','1'); }catch(e){} route(); const sp = $('splash');
+    sp.animate([{clipPath:'circle(150% at 50% 80%)'},{clipPath:'circle(0% at 50% 80%)'}],{duration:1000,easing:'cubic-bezier(.7,0,.2,1)',fill:'forwards'}).finished.then(() => sp.remove()); }; }
+if (CLOUD){ cloudPull(); setInterval(cloudPull, 8000); document.addEventListener('visibilitychange', cloudPull); }
+</script>
+</body>
+</html>
